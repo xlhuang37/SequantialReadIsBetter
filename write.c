@@ -34,8 +34,8 @@ int sequential_write(int block_num, char* device, char* log_directory, int strid
     memset(buffer, '1', block_size);
     memset(buffer + block_size, '2', block_size);
 
-    file = open(device, O_CREAT | O_DIRECT | O_RDWR);
-    if(file == -1){perror("Error opening file");}
+    file = open(device, O_CREAT | O_DIRECT | O_RDWR, 0777);
+    if(file == -1){perror("Error opening file"); return 1;}
     FILE* log = fopen(log_directory, "a");
 
     int pattern_offset;
@@ -77,15 +77,15 @@ int sequential_write(int block_num, char* device, char* log_directory, int strid
     return 0;
 }
 
-void read_file(char* directory, int offset, int read_size){
-    char* buffer = malloc(read_size*sizeof(char));
+int read_file(char* directory, int offset, int read_size){
+    char* buffer = calloc(read_size + 1, sizeof(char));
     int file = open(directory, O_RDWR);
-    if(file == -1){perror("Error opening file");}
+    if(file == -1){perror("Error opening file"); return 1;}
     lseek(file, offset, SEEK_SET);
     read(file, buffer, read_size);
     printf("%s\n",buffer);
     free(buffer);
-    return;
+    return 0;
 }
 
 
@@ -141,7 +141,7 @@ int main(int argc, char ** argv){
         }
     }
     else{
-        for(int i = 1; i <= MAX_BLOCK_NUM; i+=10){
+        for(int i = 2000; i <= MAX_BLOCK_NUM; i+=2000){
             for(int j = 0; j < 16; j++){
                 sequential_write(i, device, log_directory, stride, stride_val, bounded, upper_bound, lower_bound, read_bool);
             }
