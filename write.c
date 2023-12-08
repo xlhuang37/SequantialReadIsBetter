@@ -34,7 +34,7 @@ int sequential_write(int block_num, char* device, char* log_directory, int strid
     memset(buffer + block_size, '2', block_size);
 
     file = open(device, O_CREAT | O_DIRECT | O_RDWR);
-    FILE* log = fopen(log_directory, "wb");
+    FILE* log = fopen(log_directory, "a");
 
     int pattern_offset;
     gettimeofday(&start, NULL);
@@ -109,9 +109,6 @@ int main(int argc, char ** argv){
         case 's':
             stride = atoi(optarg);
             break;
-        case 'v':
-            stride_val = atoi(optarg);
-            break;
         case 'b':
             bounded = atoi(optarg);
             break;
@@ -129,9 +126,24 @@ int main(int argc, char ** argv){
             return 1;
         }
     }
-    for(int i = 1; i <= MAX_BLOCK_NUM; i+=20000){
-        sequential_write(i, device, log_directory, stride, stride_val, bounded, upper_bound, lower_bound, READ);
+    if(stride){
+        for(int i = 1; i <= MAX_BLOCK_NUM; i+=500){
+            stride_val = i * BLOCK_SIZE;
+            for(int j = 1; j < MAX_BLOCK_NUM; j+=500){
+                for(int k = 0; k < 16; j++){
+                    sequential_write(j, device, log_directory, stride, stride_val, bounded, upper_bound, lower_bound, READ);
+                }
+            }
+        }
     }
+    else{
+        for(int i = 1; i <= MAX_BLOCK_NUM; i+=500){
+            for(int j = 0; i < 16; j++){
+                sequential_write(i, device, log_directory, stride, stride_val, bounded, upper_bound, lower_bound, READ);
+            }
+        }
+    }
+
 
     // read_file("./test_file", 4096, 1000);
     return 0;
