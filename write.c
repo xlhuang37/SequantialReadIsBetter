@@ -8,8 +8,8 @@
 #include <time.h>
 
 #define ONE_GB (1024*1024*1024)
-#define MAX_BLOCK_SIZE (100 * 1024 * 1024)
-#define MAX_BLOCK_NUM 25600
+#define MAX_BLOCK_SIZE (10 * 1024 * 1024)
+#define MAX_BLOCK_NUM 2560
 #define BLOCK_SIZE 4096
 
 
@@ -92,6 +92,7 @@ int main(int argc, char ** argv){
     char* device = "test_file.txt";
     char* log_directory = "log.txt";
     stride = 0;
+    stride_val = -1;
     bounded = 0;
     READ = 0;
     while ((c = getopt (argc, argv, "m:n:s:v:b:u:l:r")) != -1) {
@@ -127,17 +128,17 @@ int main(int argc, char ** argv){
         }
     }
     if(stride){
-        for(int i = 1; i <= MAX_BLOCK_NUM; i+=500){
+        for(int i = 1; i <= MAX_BLOCK_NUM; i+=10){
             stride_val = i * BLOCK_SIZE;
-            for(int j = 1; j < MAX_BLOCK_NUM; j+=500){
-                for(int k = 0; k < 16; j++){
+            for(int j = 1; j < MAX_BLOCK_NUM; j+=10){
+                for(int k = 0; k < 16; k++){
                     sequential_write(j, device, log_directory, stride, stride_val, bounded, upper_bound, lower_bound, READ);
                 }
             }
         }
     }
     else{
-        for(int i = 1; i <= MAX_BLOCK_NUM; i+=500){
+        for(int i = 1; i <= MAX_BLOCK_NUM; i+=10){
             for(int j = 0; j < 16; j++){
                 sequential_write(i, device, log_directory, stride, stride_val, bounded, upper_bound, lower_bound, READ);
             }
