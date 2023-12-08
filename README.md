@@ -14,6 +14,6 @@ Arguments are used to control the modes, boundaries, and read/write:
 6. -l arg1: sets lower bound.
 7. -c: enters read mode. If not set, enters write mode.
 
-Each call to the sequential right function will result in writes that add up to 1GB. The buffer for writing/reading is created using **posix_memalign** such that it can work on gwion... Thank you Prof. Porter..
+Each call to the sequential_write function will result in writes that add up to 1GB. The buffer for writing/reading is created using **posix_memalign** such that it can work on gwion... Thank you Prof. Porter..
 
 
