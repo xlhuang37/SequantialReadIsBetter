@@ -35,6 +35,7 @@ int sequential_write(int block_num, char* device, char* log_directory, int strid
     memset(buffer + block_size, '2', block_size);
 
     file = open(device, O_CREAT | O_DIRECT | O_RDWR);
+    if(file == -1){perror("Error opening file");}
     FILE* log = fopen(log_directory, "a");
 
     int pattern_offset;
@@ -78,7 +79,8 @@ int sequential_write(int block_num, char* device, char* log_directory, int strid
 
 void read_file(char* directory, int offset, int read_size){
     char* buffer = malloc(read_size*sizeof(char));
-    int file = open(directory, O_RDONLY);
+    int file = open(directory, O_RDWR);
+    if(file == -1){perror("Error opening file");}
     lseek(file, offset, SEEK_SET);
     read(file, buffer, read_size);
     printf("%s\n",buffer);
