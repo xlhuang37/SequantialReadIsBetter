@@ -31,8 +31,8 @@ int sequential_write(int block_num, char* device, char* log_directory, int strid
 
     // buffer with two different patterns.
     buffer = (char *)malloc(block_size*2);
-    memset(buffer, '1', block_size);
-    memset(buffer + block_size, '2', block_size);
+    memset(buffer, '3', block_size);
+    memset(buffer + block_size, '4', block_size);
 
     file = open(device, O_DIRECT | O_RDWR);
     if(file == -1){perror("Error opening file"); return 1;}
@@ -79,7 +79,7 @@ int sequential_write(int block_num, char* device, char* log_directory, int strid
 
 int read_file(char* directory, int offset, int read_size){
     char* buffer = calloc(read_size + 1, sizeof(char));
-    int file = open(directory, O_RDWR);
+    int file = open(directory, O_RDONLY);
     if(file == -1){perror("Error opening file"); return 1;}
     lseek(file, offset, SEEK_SET);
     read(file, buffer, read_size);
@@ -141,7 +141,7 @@ int main(int argc, char ** argv){
         }
     }
     else{
-        for(int i = 2000; i <= MAX_BLOCK_NUM; i+=2000){
+        for(int i = 1; i <= MAX_BLOCK_NUM; i+=10){
             for(int j = 0; j < 16; j++){
                 sequential_write(i, device, log_directory, stride, stride_val, bounded, upper_bound, lower_bound, read_bool);
             }
@@ -149,6 +149,6 @@ int main(int argc, char ** argv){
     }
 
     read_file(device, 0, 1000);
-    read_file(device, 99*1024*1024, 1000);
+    read_file(device, 4096, 1000);
     return 0;
 }
