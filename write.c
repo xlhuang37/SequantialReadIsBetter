@@ -17,7 +17,8 @@ int sequential_write(int block_num, char* device, char* log_directory, int strid
     // Initializing block sizes
     int block_size = block_num * BLOCK_SIZE;
     printf("Writing using granularity %d\n", block_size);
-    if(READ){printf("Read Mode On\n");}else{printf("Write Mode On\n");}
+    if(READ){printf("Read Mode On\n");}
+    else{printf("Write Mode On\n");}
     if(stride){printf("Stride mode on. Stride offset is %d\n", stride_val);}
     if(BOUNDED){printf("Random mode on. Random boundary logical block %d to logical block %d\n", LOWER_BOUND, UPPER_BOUND);}
 
@@ -88,18 +89,18 @@ void read_file(char* directory, int offset, int read_size){
 
 int main(int argc, char ** argv){
     printf("we are inside main function\n");
-    int stride, stride_val, bounded, upper_bound, lower_bound, c, READ, length;
+    int stride, stride_val, bounded, upper_bound, lower_bound, c, read_bool, length;
     char* device = "test_file.txt";
     char* log_directory = "log.txt";
     stride = 0;
     stride_val = -1;
     bounded = 0;
-    READ = 0;
-    while ((c = getopt (argc, argv, "m:n:s:v:b:u:l:r")) != -1) {
+    read_bool = 0;
+    while ((c = getopt (argc, argv, "m:n:s:b:u:l:c:")) != -1) {
         switch (c) {
         case 'm':
             length = strlen(optarg);
-            device = malloc(length + 1000);
+            device = malloc(length + 1);
             strcat(device, optarg);
             break;
         case 'n':
@@ -119,8 +120,8 @@ int main(int argc, char ** argv){
         case 'l':
             lower_bound = atoi(optarg);
             break;
-        case 'r':
-            READ = atoi(optarg);
+        case 'c':
+            read_bool = atoi(optarg);
             break;
         default:
             printf("wtf");
@@ -132,7 +133,7 @@ int main(int argc, char ** argv){
             stride_val = i * BLOCK_SIZE;
             for(int j = 1; j < MAX_BLOCK_NUM; j+=10){
                 for(int k = 0; k < 16; k++){
-                    sequential_write(j, device, log_directory, stride, stride_val, bounded, upper_bound, lower_bound, READ);
+                    sequential_write(j, device, log_directory, stride, stride_val, bounded, upper_bound, lower_bound, read_bool);
                 }
             }
         }
@@ -140,7 +141,7 @@ int main(int argc, char ** argv){
     else{
         for(int i = 1; i <= MAX_BLOCK_NUM; i+=10){
             for(int j = 0; j < 16; j++){
-                sequential_write(i, device, log_directory, stride, stride_val, bounded, upper_bound, lower_bound, READ);
+                sequential_write(i, device, log_directory, stride, stride_val, bounded, upper_bound, lower_bound, read_bool);
             }
         }
     }
