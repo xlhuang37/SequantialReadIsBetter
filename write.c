@@ -50,7 +50,6 @@ int sequential_write(int block_num, char* device, char* log_directory, int strid
        pattern_offset = (total_written/block_size)%2;
        if(READ){
           read(file, buffer + block_size * pattern_offset, block_size);
-          printf("%s\n", buffer );
        }
        else{
           write(file, buffer + block_size * pattern_offset, block_size);
