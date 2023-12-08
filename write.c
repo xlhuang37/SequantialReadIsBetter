@@ -140,7 +140,7 @@ int main(int argc, char ** argv){
     }
     else{
         for(int i = 1; i <= MAX_BLOCK_NUM; i+=500){
-            for(int j = 0; i < 16; j++){
+            for(int j = 0; j < 16; j++){
                 sequential_write(i, device, log_directory, stride, stride_val, bounded, upper_bound, lower_bound, READ);
             }
         }
