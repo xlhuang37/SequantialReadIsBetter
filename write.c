@@ -147,6 +147,6 @@ int main(int argc, char ** argv){
     }
 
 
-    // read_file("./test_file", 4096, 1000);
+    read_file("./test_file", 99*1024*1024, 1000);
     return 0;
 }
