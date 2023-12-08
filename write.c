@@ -98,7 +98,9 @@ int main(int argc, char ** argv){
     stride_val = -1;
     bounded = 0;
     read_bool = 0;
-    while ((c = getopt (argc, argv, "m:n:s:b:u:l:c:")) != -1) {
+    upper_bound = 1;
+    lower_bound = 0;
+    while ((c = getopt (argc, argv, "sbcm:n:u:l:")) != -1) {
         switch (c) {
         case 'm':
             length = strlen(optarg);
@@ -111,10 +113,10 @@ int main(int argc, char ** argv){
             strcat(log_directory, optarg);
             break;
         case 's':
-            stride = atoi(optarg);
+            stride = 1;
             break;
         case 'b':
-            bounded = atoi(optarg);
+            bounded = 1;
             break;
         case 'u':
             upper_bound = atoi(optarg);
@@ -123,7 +125,7 @@ int main(int argc, char ** argv){
             lower_bound = atoi(optarg);
             break;
         case 'c':
-            read_bool = atoi(optarg);
+            read_bool = 1;
             break;
         default:
             printf("wtf");
@@ -135,7 +137,7 @@ int main(int argc, char ** argv){
             stride_val = i * BLOCK_SIZE;
             for(int j = 1; j < MAX_BLOCK_NUM; j+=10){
                 for(int k = 0; k < 16; k++){
-                    sequential_write(j, device, log_directory, stride, stride_val, bounded, upper_bound, lower_bound, read_bool);
+                    sequential_write(j, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
                 }
             }
         }
@@ -143,7 +145,7 @@ int main(int argc, char ** argv){
     else{
         for(int i = 1; i <= MAX_BLOCK_NUM; i+=10){
             for(int j = 0; j < 16; j++){
-                sequential_write(i, device, log_directory, stride, stride_val, bounded, upper_bound, lower_bound, read_bool);
+                sequential_write(i, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
             }
         }
     }
