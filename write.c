@@ -97,13 +97,11 @@ int main(int argc, char ** argv){
     while ((c = getopt (argc, argv, "m:n:s:v:b:u:l:r")) != -1) {
         switch (c) {
         case 'm':
-            free(device);
             length = strlen(optarg);
-            device = malloc(length + 1);
+            device = malloc(length + 1000);
             strcat(device, optarg);
             break;
         case 'n':
-            free(log_directory);
             length = strlen(optarg);
             log_directory = malloc(length + 1);
             strcat(log_directory, optarg);
