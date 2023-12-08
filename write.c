@@ -24,7 +24,7 @@ int sequential_write(int block_num, char* device, char* log_directory, int strid
 
 
     char *buffer;
-    int file, random_cursor;
+    int random_cursor;
     clock_t start_cpu, end_cpu;
     struct timeval start, end;
     double cpu_time_used, throughput, total_time_used;
@@ -34,8 +34,8 @@ int sequential_write(int block_num, char* device, char* log_directory, int strid
     memset(buffer, '1', block_size);
     memset(buffer + block_size, '2', block_size);
 
-    file = open(device, O_CREAT | O_DIRECT | O_RDWR, 0777);
-    if(file == -1){perror("Error opening file"); return 1;}
+    FILE* file = fopen(device, "r+");
+    if(!file){perror("Error opening file"); return 1;}
     FILE* log = fopen(log_directory, "a");
 
     int pattern_offset;
@@ -45,17 +45,17 @@ int sequential_write(int block_num, char* device, char* log_directory, int strid
        if(BOUNDED){
             random_cursor = random();
             random_cursor = (random_cursor % (UPPER_BOUND - LOWER_BOUND - block_num)) * BLOCK_SIZE;
-            lseek(file, random_cursor, SEEK_SET);
+            fseek(file, random_cursor, SEEK_SET);
         }
        pattern_offset = (total_written/block_size)%2;
        if(READ){
-          read(file, buffer + block_size * pattern_offset, block_size);
+          fread(buffer + block_size * pattern_offset, sizeof(char), block_size, file);
        }
        else{
-          write(file, buffer + block_size * pattern_offset, block_size);
+          fwrite(buffer + block_size * pattern_offset, sizeof(char), block_size, file);
        }
        
-       if(stride){lseek(file, total_written + stride_val, SEEK_SET);}
+       if(stride){fseek(file, total_written + stride_val, SEEK_SET);}
     }
     end_cpu = clock();
     gettimeofday(&end, NULL);
@@ -69,7 +69,7 @@ int sequential_write(int block_num, char* device, char* log_directory, int strid
     printf("Block Size: %d bytes, Throughput: %f MB/s\n", block_size, throughput);
     fprintf(log, "%d\n%f\n%f\n%f\n", block_num, cpu_time_used, total_time_used, throughput);
 
-    close(file);
+    fclose(file);
     fclose(log);
     free(buffer);
 
@@ -79,10 +79,10 @@ int sequential_write(int block_num, char* device, char* log_directory, int strid
 
 int read_file(char* directory, int offset, int read_size){
     char* buffer = calloc(read_size + 1, sizeof(char));
-    int file = open(directory, O_RDWR);
-    if(file == -1){perror("Error opening file"); return 1;}
-    lseek(file, offset, SEEK_SET);
-    read(file, buffer, read_size);
+    FILE* file = fopen(directory, "r");
+    if(!file){perror("Error opening file"); return 1;}
+    fseek(file, offset, SEEK_SET);
+    fread(buffer, sizeof(char), read_size, file);
     printf("%s\n",buffer);
     free(buffer);
     return 0;
