@@ -14,8 +14,6 @@ Arguments are used to control the modes, boundaries, and read/write:
 6. -l arg1: sets lower bound.
 7. -c: enters read mode. If not set, enters write mode.
 
-## Known Issues (and I don't think it is my issue):
-Code works perfectly on my docker, but it has the following issue on gwion:
+Each call to the sequential right function will result in writes that add up to 1GB. The buffer for writing/reading is created using **posix_memalign** such that it can work on gwion... Thank you Prof. Porter..
 
-It seems that the system blocks os calls such as write does not work on gwion, but higher-level functions such as fopen/fwrite does their job. Open will open the remote file, and from ls -l I could see that the disk was modified, but the runtime indicates that the write to disk was actually not done.
 
