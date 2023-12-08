@@ -5,6 +5,7 @@ All of the code for this lab is in write.c. My code supports both reading and wr
 1. Sequential mode. The code will sequentially write blocks of data until writing a total of 1GB.
 2. Stride mode. After each write/read, the code will move forward by a offset. Other than that, the same as sequential mode.
 3. Random mode. Upper and lower bounds will be defined, only to which the code can perform read/write. A random number is used to offset where we are reading inside the boundary.
+
 Arguments are used to control the modes, boundaries, and read/write:
 1. -m arg1: directory to write to or read from.
 2. -n arg1: directory of the log that records throughput.
