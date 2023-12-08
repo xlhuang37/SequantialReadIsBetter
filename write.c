@@ -89,19 +89,21 @@ void read_file(char* directory, int offset, int read_size){
 int main(int argc, char ** argv){
     printf("we are inside main function\n");
     int stride, stride_val, bounded, upper_bound, lower_bound, c, READ, length;
-    char* device;
-    char* log_directory;
+    char* device = "test_file.txt";
+    char* log_directory = "log.txt";
     stride = 0;
     bounded = 0;
     READ = 0;
     while ((c = getopt (argc, argv, "m:n:s:v:b:u:l:r")) != -1) {
         switch (c) {
         case 'm':
+            free(device);
             length = strlen(optarg);
             device = malloc(length + 1);
             strcat(device, optarg);
             break;
         case 'n':
+            free(log_directory);
             length = strlen(optarg);
             log_directory = malloc(length + 1);
             strcat(log_directory, optarg);
