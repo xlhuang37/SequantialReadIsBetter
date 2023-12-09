@@ -25,5 +25,5 @@ xiaolong@gwion:~/lab-5-alien$ lsblk -o NAME,SIZE /dev/sdb1
 NAME SIZE
 sdb1  46G
 ```
-
+So yeah I only did experiments for HHD, which is not my fault. Plus the disks are hella slow..
 
