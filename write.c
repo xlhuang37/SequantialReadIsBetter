@@ -42,15 +42,17 @@ int sequential_write(int block_num, char* device, char* log_directory, int strid
     for (long long total_written = 0; total_written + block_size < ONE_GB; total_written += block_size) {
        if(BOUNDED){
             random_cursor = random();
+            if(UPPER_BOUND - LOWER_BOUND - block_num <= 0){perror("The Bound you set is smaller than block size??");}
             random_cursor = (random_cursor % (UPPER_BOUND - LOWER_BOUND - block_num)) * BLOCK_SIZE;
+            
             lseek(file, random_cursor, SEEK_SET);
         }
 
        if(READ){
-          if(read(file, buffer, block_size)==-1){perror("write error, wtf?!");}
+          if(write(file, buffer, block_size)==-1){perror("write error, wtf?!"); return 1;}
        }
        else{
-          if(write(file, buffer, block_size)==-1){perror("write error, wtf?!");}
+          if(write(file, buffer, block_size)==-1){perror("write error, wtf?!"); return 1;}
        }
        
        if(stride){lseek(file, stride_val, SEEK_CUR);}
@@ -65,7 +67,7 @@ int sequential_write(int block_num, char* device, char* log_directory, int strid
     printf("CPU_TIME_USED = %f\n", cpu_time_used);
     printf("TOTAL_TIME_USED = %f\n", total_time_used);
     printf("Block Size: %d bytes, Throughput: %f MB/s\n", block_size, throughput);
-    fprintf(log, "%d\n%f\n%f\n%f\n", block_num, cpu_time_used, total_time_used, throughput);
+    fprintf(log, "%d\n%f\n%f\n%f\n", block_num * BLOCK_SIZE, cpu_time_used, total_time_used, throughput);
 
     close(file);
     fclose(log);
@@ -131,152 +133,55 @@ int main(int argc, char ** argv){
         }
     }
     if(stride){
-        for(int i = 1; i <= 6; i+=1){
+        for(int i = 1; i < 25600; i*=10){
             stride_val = i * BLOCK_SIZE;
-            for(int j = 1; j < 6; j+=1){
-                for(int k = 0; k < 16; k++){
-                    sequential_write(j, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
-                }
-            }
-            for(int j = 10; j < 60; j+=10){
-                for(int k = 0; k < 16; k++){
-                    sequential_write(j, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
-                }
-            }
-            for(int j = 100; j < 600; j+=100){
-                for(int k = 0; k < 16; k++){
-                    sequential_write(j, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
-                }
-            }
-            for(int j = 1000; j < 2560; j+=500){
-                for(int k = 0; k < 16; k++){
+            for(int j = 1; j < i*11; j*=10){
+                for(int k = 0; k < 5; k++){
                     sequential_write(j, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
                 }
             }
         }
-        for(int i = 10; i <= 60; i+=10){
-            stride_val = i * BLOCK_SIZE;
-            for(int j = 1; j < 6; j+=1){
-                for(int k = 0; k < 16; k++){
-                    sequential_write(j, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
-                }
-            }
-            for(int j = 10; j < 60; j+=10){
-                for(int k = 0; k < 16; k++){
-                    sequential_write(j, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
-                }
-            }
-            for(int j = 100; j < 600; j+=100){
-                for(int k = 0; k < 16; k++){
-                    sequential_write(j, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
-                }
-            }
-            for(int j = 1000; j < 2560; j+=500){
-                for(int k = 0; k < 16; k++){
-                    sequential_write(j, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
-                }
-            }
-        }
-        for(int i = 100; i <= 600; i+=100){
-            stride_val = i * BLOCK_SIZE;
-            for(int j = 1; j < 6; j+=1){
-                for(int k = 0; k < 16; k++){
-                    sequential_write(j, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
-                }
-            }
-            for(int j = 10; j < 60; j+=10){
-                for(int k = 0; k < 16; k++){
-                    sequential_write(j, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
-                }
-            }
-            for(int j = 100; j < 600; j+=100){
-                for(int k = 0; k < 16; k++){
-                    sequential_write(j, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
-                }
-            }
-            for(int j = 1000; j < 2560; j+=500){
-                for(int k = 0; k < 16; k++){
-                    sequential_write(j, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
-                }
-            }
-        }
-        for(int i = 1000; i <= 6000; i+=1000){
-            stride_val = i * BLOCK_SIZE;
-            for(int j = 1; j < 6; j+=1){
-                for(int k = 0; k < 16; k++){
-                    sequential_write(j, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
-                }
-            }
-            for(int j = 10; j < 60; j+=10){
-                for(int k = 0; k < 16; k++){
-                    sequential_write(j, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
-                }
-            }
-            for(int j = 100; j < 600; j+=100){
-                for(int k = 0; k < 16; k++){
-                    sequential_write(j, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
-                }
-            }
-            for(int j = 1000; j < 2560; j+=500){
-                for(int k = 0; k < 16; k++){
-                    sequential_write(j, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
-                }
-            }
-        }
-        for(int i = 10000; i <= MAX_BLOCK_NUM; i+=5000){
-            stride_val = i * BLOCK_SIZE;
-            for(int j = 1; j < 6; j+=1){
-                for(int k = 0; k < 16; k++){
-                    sequential_write(j, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
-                }
-            }
-            for(int j = 10; j < 60; j+=10){
-                for(int k = 0; k < 16; k++){
-                    sequential_write(j, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
-                }
-            }
-            for(int j = 100; j < 600; j+=100){
-                for(int k = 0; k < 16; k++){
-                    sequential_write(j, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
-                }
-            }
-            for(int j = 1000; j < 2560; j+=500){
-                for(int k = 0; k < 16; k++){
-                    sequential_write(j, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
-                }
-            }
-        }
-
     }
     else{
-        for(int i = 1; i < 6; i+=1){
-            for(int j = 0; j < 16; j++){
-                sequential_write(0 + i, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+            for(int j = 0; j < 5; j++){
+                sequential_write(1, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
             }
-        }
-        for(int i = 10; i < 60; i+=10){
-            for(int j = 0; j < 16; j++){
-                sequential_write(100 + i, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+            for(int j = 0; j < 5; j++){
+                sequential_write(2, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
             }
-        }
-        for(int i = 100; i < 600; i+=100){
-            for(int j = 0; j < 16; j++){
-                sequential_write(1000 + i, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+            for(int j = 0; j < 5; j++){
+                sequential_write(5, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
             }
-        }
-        for(int i = 1000; i < 6000; i+=1000){
-            for(int j = 0; j < 16; j++){
-                sequential_write(5000 + i, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+
+            for(int j = 0; j < 5; j++){
+                sequential_write(10, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
             }
-        }
-        for(int i = 10000; i < 25600; i+=5000){
-            for(int j = 0; j < 16; j++){
-                sequential_write(10000 + i, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+            for(int j = 0; j < 5; j++){
+                sequential_write(20, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
             }
-        }
-        for(int j = 0; j < 16; j++){
-            sequential_write(25600, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
-        }
+            for(int j = 0; j < 5; j++){
+                sequential_write(100, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+                        }
+            for(int j = 0; j < 5; j++){
+                sequential_write(1000, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+            }
+            for(int j = 0; j < 5; j++){
+                sequential_write(2000, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+            }
+            for(int j = 0; j < 5; j++){
+                sequential_write(5000, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+            }
+            for(int j = 0; j < 5; j++){
+                sequential_write(10000, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+            }
+            for(int j = 0; j < 5; j++){
+                sequential_write(15000, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+            }
+            for(int j = 0; j < 5; j++){
+                sequential_write(20000, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+            }
+
+
     }
 
     // read_file(device, 0, 1000);
