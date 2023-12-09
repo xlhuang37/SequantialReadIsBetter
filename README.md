@@ -1,10 +1,15 @@
 # lab-5-alien
 ## Files
 Write.c - Main Function with all the code
+
 run.sh - shell to run on gwion
+
 run_local.sh - shell script for personal local testing
+
 Lab 5 Write up.pdf - The Report
+
 lab-5-data.xlsx - Some Unformatted data that I used to plot the graph
+
 ## Code Structure
 My code supports both reading and writing in three modes:
 1. Sequential mode. The code will sequentially write blocks of data until writing a total of 1GB.
