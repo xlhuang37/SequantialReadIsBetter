@@ -1,11 +1,16 @@
 # lab-5-alien
-
+## Files
+Write.c - Main Function with all the code
+run.sh - shell to run on gwion
+run_local.sh - shell script for personal local testing
+Lab 5 Write up.pdf - The Report
+lab-5-data.xlsx - Some Unformatted data that I used to plot the graph
 ## Code Structure
-All of the code for this lab is in write.c. My code supports both reading and writing in three modes:
+My code supports both reading and writing in three modes:
 1. Sequential mode. The code will sequentially write blocks of data until writing a total of 1GB.
 2. Stride mode. After each write/read, the code will move forward by a offset. Other than that, the same as sequential mode.
 3. Random mode. Upper and lower bounds will be defined, only to which the code can perform read/write. A random number is used to offset where we are reading inside the boundary.
-Each call to the sequential_write function will result in writes that add up to 1GB. The buffer for writing/reading is created using **posix_memalign** such that it can work on gwion... Thank you Prof. Porter..
+Each call to the sequential_write function will result in writes that add up to 1GB. The buffer for writing/reading is created using posix_memalign such that it can work on gwion.
 ## Arguments
 The following rguments are used to control the modes, boundaries, and read/write:
 1. -m arg1: directory to write to or read from.
