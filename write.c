@@ -47,10 +47,10 @@ int sequential_write(int block_num, char* device, char* log_directory, int strid
         }
 
        if(READ){
-          read(file, buffer, block_size);
+          if(read(file, buffer, block_size)==-1){perror("write error, wtf?!");}
        }
        else{
-          write(file, buffer, block_size);
+          if(write(file, buffer, block_size)==-1){perror("write error, wtf?!");}
        }
        
        if(stride){lseek(file, stride_val, SEEK_CUR);}
