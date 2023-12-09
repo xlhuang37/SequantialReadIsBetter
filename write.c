@@ -29,7 +29,7 @@ int sequential_write(int block_num, char* device, char* log_directory, int strid
     struct timeval start, end;
     double cpu_time_used, throughput, total_time_used;
 
-    // buffer with two different patterns.
+    // Creating Aligned Buffer
     posix_memalign(&buffer, 4096, block_size);
     memset(buffer, '3', block_size);
 
@@ -64,6 +64,7 @@ int sequential_write(int block_num, char* device, char* log_directory, int strid
     total_time_used =  ((end.tv_sec - start.tv_sec) * 1000000.0 + (end.tv_usec - start.tv_usec)) / (1000000 *1.0);
     throughput = (ONE_GB) / total_time_used /(1024*1024*1.0); // Throughput in MB/s
 
+    // Document the data
     printf("CPU_TIME_USED = %f\n", cpu_time_used);
     printf("TOTAL_TIME_USED = %f\n", total_time_used);
     printf("Block Size: %d bytes, Throughput: %f MB/s\n", block_size, throughput);
@@ -77,6 +78,7 @@ int sequential_write(int block_num, char* device, char* log_directory, int strid
     return 0;
 }
 
+// Debug Function to test that stuff is really written to the disk.
 int read_file(char* directory, int offset, int read_size){
     char* buffer = calloc(read_size + 1, sizeof(char));
     int file = open(directory, O_RDONLY);
@@ -102,39 +104,48 @@ int main(int argc, char ** argv){
     lower_bound = 0;
     while ((c = getopt (argc, argv, "sbcm:n:u:l:")) != -1) {
         switch (c) {
+        // Set directory to write to or read from
         case 'm':
             length = strlen(optarg);
             device = malloc(length + 1);
             strcat(device, optarg);
             break;
+        // Directory that contains recorded CPU_time, corresponding granularity, etc. 
         case 'n':
             length = strlen(optarg);
             log_directory = malloc(length + 1);
             strcat(log_directory, optarg);
             break;
+        // Enable Stride Mode
         case 's':
             stride = 1;
             break;
+        // Enable Random Access Mode
         case 'b':
             bounded = 1;
             break;
+        // Set up upper bound Logic Block Addressing (LBA) for random access 
         case 'u':
             upper_bound = atoi(optarg);
             break;
+        // Set up lower bound LBA
         case 'l':
             lower_bound = atoi(optarg);
             break;
+        // Enable Read Mode
         case 'c':
             read_bool = 1;
             break;
+        // Should never be here
         default:
-            printf("wtf");
+            printf("wtf Wrong Argument");
             return 1;
         }
     }
     if(stride){
         for(int i = 1; i < 25600; i*=10){
             stride_val = i * BLOCK_SIZE;
+            // j is set to 11 because the HHD only has 46 gbs. With j being max 10j, we guarantee that we write at most 11 gbs.
             for(int j = 1; j < i*11; j*=10){
                 for(int k = 0; k < 5; k++){
                     sequential_write(j, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
