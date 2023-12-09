@@ -10,7 +10,7 @@
 
 **lab-5-data.xlsx** - Some Unformatted data that I used to plot the graph
 
-**LateHourUsed** - NameOfFile
+**LateHourUsed - 67** - NameOfFile
 
 ## Code Structure
 My code supports both reading and writing in three modes:
