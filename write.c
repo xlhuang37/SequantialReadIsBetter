@@ -41,6 +41,7 @@ int sequential_write(int block_num, char* device, char* log_directory, int strid
     start_cpu = clock();
     for (long long total_written = 0; total_written + block_size < ONE_GB; total_written += block_size) {
        if(BOUNDED){
+            srand(time(NULL));
             random_cursor = random();
             if(UPPER_BOUND - LOWER_BOUND - block_num <= 0){perror("The Bound you set is smaller than block size??");}
             random_cursor = (random_cursor % (UPPER_BOUND - LOWER_BOUND - block_num)) * BLOCK_SIZE;
