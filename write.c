@@ -143,12 +143,12 @@ int main(int argc, char ** argv){
         }
     }
     if(stride){
-        for(int i = 1; i < 25600; i*=10){
-            stride_val = i * BLOCK_SIZE;
+        for(int i = 100; i < 25600; i*=10){
             // j is set to 11 because the HHD only has 46 gbs. With j being max 10j, we guarantee that we write at most 11 gbs.
-            for(int j = 1; j < i*11; j*=10){
+            for(int j = 1; j < i*11; j*=2){
+                stride_val = j * BLOCK_SIZE;
                 for(int k = 0; k < 5; k++){
-                    sequential_write(j, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+                    sequential_write(i, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
                 }
             }
         }
@@ -180,16 +180,28 @@ int main(int argc, char ** argv){
                 sequential_write(2000, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
             }
             for(int j = 0; j < 5; j++){
+                sequential_write(3000, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+            }
+            for(int j = 0; j < 5; j++){
+                sequential_write(4000, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+            }
+            for(int j = 0; j < 5; j++){
                 sequential_write(5000, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
             }
             for(int j = 0; j < 5; j++){
                 sequential_write(10000, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
             }
             for(int j = 0; j < 5; j++){
+                sequential_write(12000, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+            }
+            for(int j = 0; j < 5; j++){
                 sequential_write(15000, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
             }
             for(int j = 0; j < 5; j++){
                 sequential_write(20000, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+            }
+            for(int j = 0; j < 5; j++){
+                sequential_write(25000, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
             }
 
 
