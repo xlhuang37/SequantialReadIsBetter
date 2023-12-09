@@ -10,6 +10,8 @@
 
 **lab-5-data.xlsx** - Some Unformatted data that I used to plot the graph
 
+**LateHourUsed** - NameOfFile
+
 ## Code Structure
 My code supports both reading and writing in three modes:
 1. **Sequential mode**. The code will sequentially write blocks of data until writing a total of 1GB.
