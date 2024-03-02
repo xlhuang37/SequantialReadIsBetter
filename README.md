@@ -2,15 +2,9 @@
 ## Files
 **Write.c** - Main Function with all the code
 
-**run.sh** - shell to run on gwion
+**run.sh** - shell to run on gwion virtual machine
 
-**run_local.sh** - shell script for personal local testing
-
-**Lab 5 Write up.pdf** - The Report
-
-**lab-5-data.xlsx** - Some Unformatted data that I used to plot the graph
-
-**LateHourUsed - 67** - NameOfFile
+**run_local.sh** - shell to run at local computer
 
 ## Code Structure
 My code supports both reading and writing in three modes:
@@ -37,5 +31,7 @@ xiaolong@gwion:~/lab-5-alien$ lsblk -o NAME,SIZE /dev/sdb1
 NAME SIZE
 sdb1  46G
 ```
-So yeah I only did experiments for HHD, which is not my fault. Plus the disks are hella slow..
+## Future Plan
+1. Clean up the code. Use this repo as an playground to practice code readability.
+2. Read more about I/O scheduler and how specifically the transfer granularity impacts performance. 
 
