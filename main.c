@@ -13,14 +13,14 @@
 #define BLOCK_SIZE 4096
 
 
-int sequential_write(int block_num, char* device, char* log_directory, int stride, int stride_val, int BOUNDED, int LOWER_BOUND, int UPPER_BOUND, int READ) {
+int sequential_write(int block_num, char* device, char* log_directory, int stride, int stride_val, int is_random_mode, int LOWER_BOUND, int UPPER_BOUND, int READ) {
     // Initializing block sizes
     int block_size = block_num * BLOCK_SIZE;
     printf("Writing using granularity %d\n", block_size);
     if(READ){printf("Read Mode On\n");}
     else{printf("Write Mode On\n");}
     if(stride){printf("Stride mode on. Stride offset is %d\n", stride_val);}
-    if(BOUNDED){printf("Random mode on. Random boundary logical block %d to logical block %d\n", LOWER_BOUND, UPPER_BOUND);}
+    if(is_random_mode){printf("Random mode on. Random boundary logical block %d to logical block %d\n", LOWER_BOUND, UPPER_BOUND);}
 
 
     void *buffer;
@@ -29,10 +29,11 @@ int sequential_write(int block_num, char* device, char* log_directory, int strid
     struct timeval start, end;
     double cpu_time_used, throughput, total_time_used;
 
-    // Creating Aligned Buffer
+    // Creating Aligned Buffer using posix_memalign
     posix_memalign(&buffer, 4096, block_size);
     memset(buffer, '3', block_size);
 
+    // O_DIRECT flag is necessary to bypass caching
     file = open(device, O_DIRECT | O_RDWR);
     if(file == -1){perror("Error opening file"); return 1;}
     FILE* log = fopen(log_directory, "a");
@@ -40,21 +41,27 @@ int sequential_write(int block_num, char* device, char* log_directory, int strid
     gettimeofday(&start, NULL);
     start_cpu = clock();
     for (long long total_written = 0; total_written + block_size < ONE_GB; total_written += block_size) {
-       if(BOUNDED){
+
+        // 
+        if(is_random_mode){
+            // set random seed for random()
             srand(time(NULL));
+
             random_cursor = random();
             if(UPPER_BOUND - LOWER_BOUND - block_num <= 0){perror("The Bound you set is smaller than block size??");}
             random_cursor = (random_cursor % (UPPER_BOUND - LOWER_BOUND - block_num)) * BLOCK_SIZE;
             
+            // Set access location to random cursor.
             lseek(file, random_cursor, SEEK_SET);
         }
 
-       if(READ){
-          if(write(file, buffer, block_size)==-1){perror("write error, wtf?!"); return 1;}
-       }
-       else{
-          if(write(file, buffer, block_size)==-1){perror("write error, wtf?!"); return 1;}
-       }
+        // Disk Access
+        if(READ){
+           if(read(file, buffer, block_size)==-1){perror("read error, wtf?!"); return 1;}
+        }
+        else{
+           if(write(file, buffer, block_size)==-1){perror("write error, wtf?!"); return 1;}
+        }
        
        if(stride){lseek(file, stride_val, SEEK_CUR);}
     }
@@ -93,13 +100,12 @@ int read_file(char* directory, int offset, int read_size){
 
 
 int main(int argc, char ** argv){
-    printf("we are inside main function\n");
-    int stride, stride_val, bounded, upper_bound, lower_bound, c, read_bool, length;
+    int stride, stride_val, is_random_mode, upper_bound, lower_bound, c, read_bool, length;
     char* device = "test_file.txt";
     char* log_directory = "log.txt";
     stride = 0;
     stride_val = -1;
-    bounded = 0;
+    is_random_mode = 0;
     read_bool = 0;
     upper_bound = 1;
     lower_bound = 0;
@@ -123,7 +129,7 @@ int main(int argc, char ** argv){
             break;
         // Enable Random Access Mode
         case 'b':
-            bounded = 1;
+            is_random_mode = 1;
             break;
         // Set up upper bound Logic Block Addressing (LBA) for random access 
         case 'u':
@@ -143,72 +149,72 @@ int main(int argc, char ** argv){
             return 1;
         }
     }
+
+    // Use Sequential Write to test Disk Performance.
+    // Each write/read should access 1gb of memory at different granularity. 
+    // The experiment section is ugly. Should use an array to shorten it. 
     if(stride){
         for(int i = 100; i < 25600; i*=10){
             // j is set to 11 because the HHD only has 46 gbs. With j being max 10j, we guarantee that we write at most 11 gbs.
             for(int j = 1; j < i*11; j*=2){
                 stride_val = j * BLOCK_SIZE;
                 for(int k = 0; k < 5; k++){
-                    sequential_write(i, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+                    sequential_write(i, device, log_directory, stride, stride_val, is_random_mode,  lower_bound, upper_bound, read_bool);
                 }
             }
         }
     }
     else{
             for(int j = 0; j < 5; j++){
-                sequential_write(1, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+                sequential_write(1, device, log_directory, stride, stride_val, is_random_mode,  lower_bound, upper_bound, read_bool);
             }
             for(int j = 0; j < 5; j++){
-                sequential_write(2, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+                sequential_write(2, device, log_directory, stride, stride_val, is_random_mode,  lower_bound, upper_bound, read_bool);
             }
             for(int j = 0; j < 5; j++){
-                sequential_write(5, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+                sequential_write(5, device, log_directory, stride, stride_val, is_random_mode,  lower_bound, upper_bound, read_bool);
             }
 
             for(int j = 0; j < 5; j++){
-                sequential_write(10, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+                sequential_write(10, device, log_directory, stride, stride_val, is_random_mode,  lower_bound, upper_bound, read_bool);
             }
             for(int j = 0; j < 5; j++){
-                sequential_write(20, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+                sequential_write(20, device, log_directory, stride, stride_val, is_random_mode,  lower_bound, upper_bound, read_bool);
             }
             for(int j = 0; j < 5; j++){
-                sequential_write(100, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+                sequential_write(100, device, log_directory, stride, stride_val, is_random_mode,  lower_bound, upper_bound, read_bool);
                         }
             for(int j = 0; j < 5; j++){
-                sequential_write(1000, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+                sequential_write(1000, device, log_directory, stride, stride_val, is_random_mode,  lower_bound, upper_bound, read_bool);
             }
             for(int j = 0; j < 5; j++){
-                sequential_write(2000, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+                sequential_write(2000, device, log_directory, stride, stride_val, is_random_mode,  lower_bound, upper_bound, read_bool);
             }
             for(int j = 0; j < 5; j++){
-                sequential_write(3000, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+                sequential_write(3000, device, log_directory, stride, stride_val, is_random_mode,  lower_bound, upper_bound, read_bool);
             }
             for(int j = 0; j < 5; j++){
-                sequential_write(4000, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+                sequential_write(4000, device, log_directory, stride, stride_val, is_random_mode,  lower_bound, upper_bound, read_bool);
             }
             for(int j = 0; j < 5; j++){
-                sequential_write(5000, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+                sequential_write(5000, device, log_directory, stride, stride_val, is_random_mode,  lower_bound, upper_bound, read_bool);
             }
             for(int j = 0; j < 5; j++){
-                sequential_write(10000, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+                sequential_write(10000, device, log_directory, stride, stride_val, is_random_mode,  lower_bound, upper_bound, read_bool);
             }
             for(int j = 0; j < 5; j++){
-                sequential_write(12000, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+                sequential_write(12000, device, log_directory, stride, stride_val, is_random_mode,  lower_bound, upper_bound, read_bool);
             }
             for(int j = 0; j < 5; j++){
-                sequential_write(15000, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+                sequential_write(15000, device, log_directory, stride, stride_val, is_random_mode,  lower_bound, upper_bound, read_bool);
             }
             for(int j = 0; j < 5; j++){
-                sequential_write(20000, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+                sequential_write(20000, device, log_directory, stride, stride_val, is_random_mode,  lower_bound, upper_bound, read_bool);
             }
             for(int j = 0; j < 5; j++){
-                sequential_write(25000, device, log_directory, stride, stride_val, bounded,  lower_bound, upper_bound, read_bool);
+                sequential_write(25000, device, log_directory, stride, stride_val, is_random_mode,  lower_bound, upper_bound, read_bool);
             }
-
-
     }
 
-    // read_file(device, 0, 1000);
-    // read_file(device, 4096, 1000);
     return 0;
 }
